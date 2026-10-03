@@ -1,4 +1,4 @@
-# Amazon Reviews Two-Stage Recommendation System
+# ReviewRank: Amazon Reviews Two-Stage Recommendation System
 
 A two-stage recommendation system (Retrieval → Ranking) built on Amazon Reviews data.
 
