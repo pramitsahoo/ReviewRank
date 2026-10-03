@@ -1,0 +1,51 @@
+# ── Data Pipeline ────────────────────────────────────────────
+data:
+  dataset_name: "Video_Games"
+  hf_dataset: "McAuley-Lab/Amazon-Reviews-2023"
+  k_core: 5                    # min interactions per user/item
+  positive_threshold: 4        # rating >= 4 as positive
+  max_history_length: 20       # user history sequence cap
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+
+# ── Retrieval Stage (Two-Tower) ──────────────────────────────
+retrieval:
+  embedding_dim: 128
+  mlp_dims: [256, 128]
+  learning_rate: 0.001
+  batch_size: 1024
+  temperature: 0.05            # InfoNCE temperature
+  epochs: 20
+  early_stop_patience: 3
+
+# ── FAISS Index ──────────────────────────────────────────────
+index:
+  index_type: "IVF256,PQ32"    # IVF coarse quantizer + PQ compression
+  nprobe: 32                   # clusters to probe at query time
+  top_k: 200                   # candidates forwarded to ranker
+
+# ── Ranking Stage ────────────────────────────────────────────
+ranking:
+  embedding_dim: 16
+  mlp_dims: [128]
+  dropout: 0.2
+  learning_rate: 0.001
+  batch_size: 4096
+  epochs: 15
+  early_stop_patience: 3
+
+# ── Evaluation ───────────────────────────────────────────────
+evaluation:
+  retrieval_k: [50, 100, 200]  # Recall@K for retrieval
+  ranking_k: [10, 20]          # NDCG@K / HitRate@K for ranking
+
+# ── Serving (FastAPI + ONNX) ─────────────────────────────────
+serving:
+  onnx_path: "artifacts/ranker.onnx"
+  index_path: "artifacts/faiss.index"
+  host: "0.0.0.0"
+  port: 8000
+
+# ── Global ───────────────────────────────────────────────────
+artifacts_dir: "artifacts"
+seed: 42
